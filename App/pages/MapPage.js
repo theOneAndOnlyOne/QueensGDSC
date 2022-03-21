@@ -10,11 +10,17 @@ import {
     Button,
 } from "react-native";
 import MapView, { PROVIDER_GOOGLE, Marker, Callout } from "react-native-maps";
+import { SimpleLineIcons } from "react-native-vector-icons";
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
-import AddLocation from "./AddLocation";
 
-export default function MapPage({ currentLoc, locations, navigation }) {
+export default function MapPage({
+    currentLoc,
+    locations,
+    navigation,
+    addLocationEnabled,
+    scanAnotherEnabled,
+}) {
     return !locations ? (
         <></>
     ) : (
@@ -76,18 +82,34 @@ export default function MapPage({ currentLoc, locations, navigation }) {
             apikey="AIzaSyBCRqst2_5hp1HMQpauRqbhtg8C18OwQYI"
         /> */}
             </MapView>
-            <TouchableOpacity
-                style={{
-                    position: "absolute",
-                    backgroundColor: "white",
-                    width: 200,
-                    alignSelf: "center",
-                    marginTop: 50,
-                }}
-                onPress={() => navigation.navigate("AddLocation")}
-            >
-                <Text>Add your current location as a new recycling place</Text>
-            </TouchableOpacity>
+            <SafeAreaView>
+                {scanAnotherEnabled && (
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate("Main")}
+                    >
+                        <SimpleLineIcons
+                            name="arrow-left-circle"
+                            size={30}
+                        ></SimpleLineIcons>
+                    </TouchableOpacity>
+                )}
+                {addLocationEnabled && (
+                    <TouchableOpacity
+                        style={{
+                            position: "absolute",
+                            backgroundColor: "white",
+                            width: 200,
+                            alignSelf: "center",
+                            marginTop: 50,
+                        }}
+                        onPress={() => navigation.navigate("AddLocation")}
+                    >
+                        <Text>
+                            Add your current location as a new recycling place
+                        </Text>
+                    </TouchableOpacity>
+                )}
+            </SafeAreaView>
         </View>
     );
 }

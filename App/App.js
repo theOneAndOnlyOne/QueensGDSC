@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import { View, TouchableOpacity, Text, Image, Button } from "react-native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { StatusBar } from "react-native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { NavigationContainer } from "@react-navigation/native";
+import UserFeed from "./pages/UserFeed";
+import TBD from "./pages/TBD";
+import Scan from "./pages/Scan";
+import AllLocations from "./pages/AllLocations";
+import Profile from "./pages/Profile";
 import * as Location from "expo-location";
-import MapPage from "./MapPage";
-import AddLocation from "./AddLocation";
 
-const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 export default function App() {
     const [currentLoc, setCurrentLoc] = useState(null);
@@ -59,36 +62,34 @@ export default function App() {
         text = JSON.stringify(currentLoc);
     }
     return (
-        currentLoc && (
+        <>
+            <StatusBar barStyle="dark-content"></StatusBar>
             <NavigationContainer>
-                <Stack.Navigator>
-                    <Stack.Screen
-                        name="MapPage"
-                        options={{ headerShown: false }}
-                    >
+                <Tab.Navigator screenOptions={{ headerShown: false }}>
+                    <Tab.Screen name="UserFeed" component={UserFeed} />
+                    <Tab.Screen name="TBD" component={TBD} />
+                    <Tab.Screen name="Scan">
                         {(props) => (
-                            <MapPage
+                            <Scan
                                 {...props}
                                 currentLoc={currentLoc}
                                 locations={locations}
-                            ></MapPage>
+                            ></Scan>
                         )}
-                    </Stack.Screen>
-                    <Stack.Screen
-                        name="AddLocation"
-                        options={{ headerShown: false }}
-                    >
+                    </Tab.Screen>
+                    <Tab.Screen name="AllLocations">
                         {(props) => (
-                            <AddLocation
+                            <AllLocations
                                 {...props}
                                 currentLoc={currentLoc}
                                 locations={locations}
                                 setLocations={setLocations}
-                            ></AddLocation>
+                            ></AllLocations>
                         )}
-                    </Stack.Screen>
-                </Stack.Navigator>
+                    </Tab.Screen>
+                    <Tab.Screen name="Profile" component={Profile} />
+                </Tab.Navigator>
             </NavigationContainer>
-        )
+        </>
     );
 }
