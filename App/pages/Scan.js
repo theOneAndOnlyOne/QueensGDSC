@@ -17,6 +17,46 @@ const Stack = createNativeStackNavigator();
 
 export default function Scan({ locations, currentLoc }) {
     const [image, setImage] = useState(null);
+    const [status, setStatus] = useState(null);
+    const [types, setTypes] = useState(null);
+
+    const API_KEY = "AIzaSyBCRqst2_5hp1HMQpauRqbhtg8C18OwQYI";
+    const API_URL = `https://vision.googleapis.com/v1/images:annotate?key=${API_KEY}`;
+
+    async function callGoogleVisionAsync(image) {
+        const body = {
+            requests: [
+                {
+                    image: {
+                        content: image,
+                    },
+                    features: [
+                        {
+                            type: "LABEL_DETECTION",
+                            maxResults: 3,
+                        },
+                    ],
+                },
+            ],
+        };
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        });
+        const result = await response.json();
+
+        const results = [];
+        result.responses[0].labelAnnotations.map((obj) => {
+            results.push(obj.description);
+        });
+        console.log("callGoogleVisionAsync -> result", results);
+        setTypes(results);
+    }
 
     useEffect(() => {
         openCamera();
@@ -32,11 +72,22 @@ export default function Scan({ locations, currentLoc }) {
             return;
         }
 
-        const result = await ImagePicker.launchCameraAsync();
+        const { cancelled, uri, base64 } = await ImagePicker.launchCameraAsync({
+            base64: true,
+        });
 
-        if (!result.cancelled) {
-            setImage(result.uri);
-            console.log(result.uri);
+        if (!cancelled) {
+            setImage(uri);
+            setStatus("Loading...");
+            try {
+                const result = await callGoogleVisionAsync(base64);
+                setStatus(result);
+            } catch (error) {
+                setStatus(`Error: ${error.message}`);
+            }
+        } else {
+            setImage(null);
+            setStatus(null);
         }
     };
     const Main = ({ navigation }) => {
@@ -52,6 +103,7 @@ export default function Scan({ locations, currentLoc }) {
                         </TouchableOpacity>
 
                         <Text>You have scanned</Text>
+                        {types && types.map((type) => <Text>{type}</Text>)}
                         <Image
                             source={{ uri: image }}
                             style={{ width: 200, height: 200 }}
