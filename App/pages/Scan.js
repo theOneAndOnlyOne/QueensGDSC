@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
@@ -7,23 +7,31 @@ import {
     StyleSheet,
     TouchableOpacity,
     Button,
+    ScrollView,
+    ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { SimpleLineIcons } from "react-native-vector-icons";
+import { Feather } from "react-native-vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import MapPage from "./MapPage";
 
 const Stack = createNativeStackNavigator();
 
-export default function Scan({ locations, currentLoc }) {
+export default function Scan({
+    locations,
+    currentLoc,
+    posts,
+    setPosts,
+    ownPosts,
+    setOwnPosts,
+}) {
     const [image, setImage] = useState(null);
     const [status, setStatus] = useState(null);
     const [types, setTypes] = useState(null);
-
-    const API_KEY = "AIzaSyBCRqst2_5hp1HMQpauRqbhtg8C18OwQYI";
+    const API_KEY = "Enter your API key here";
     const API_URL = `https://vision.googleapis.com/v1/images:annotate?key=${API_KEY}`;
 
-    async function callGoogleVisionAsync(image) {
+    async function callGoogleVisionAsync(image, uri) {
         const body = {
             requests: [
                 {
@@ -52,16 +60,54 @@ export default function Scan({ locations, currentLoc }) {
 
         const results = [];
         result.responses[0].labelAnnotations.map((obj) => {
-            results.push(obj.description);
+            results.push({ kind: obj.description, accuracy: obj.score });
         });
         console.log("callGoogleVisionAsync -> result", results);
         setTypes(results);
+        setPosts([
+            {
+                user: "Olivia",
+                userInfo: "CS Student at Queen's",
+                pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/olivia.jpg",
+                image: uri,
+                description: "🎉 Earned 40 points for scanning an item 🎉",
+                createdAt: new Date(),
+            },
+            ...posts,
+        ]);
+        setOwnPosts([
+            {
+                user: "Olivia",
+                userInfo: "CS Student at Queen's",
+                pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/olivia.jpg",
+                image: uri,
+                description: "🎉 Earned 40 points for scanning an item 🎉",
+                createdAt: new Date(),
+            },
+            ...ownPosts,
+        ]);
     }
 
-    useEffect(() => {
-        openCamera();
-    }, []);
+    const pickImage = async () => {
+        // No permissions request is necessary for launching the image library
+        const { cancelled, uri, base64 } =
+            await ImagePicker.launchImageLibraryAsync({
+                base64: true,
+            });
 
+        if (!cancelled) {
+            setImage(uri);
+            try {
+                const result = await callGoogleVisionAsync(base64, uri);
+                setStatus(result);
+            } catch (error) {
+                setStatus(`Error: ${error.message}`);
+            }
+        } else {
+            setImage(null);
+            setStatus(null);
+        }
+    };
     const openCamera = async () => {
         // Ask the user for the permission to access the camera
         const permissionResult =
@@ -80,7 +126,7 @@ export default function Scan({ locations, currentLoc }) {
             setImage(uri);
             setStatus("Loading...");
             try {
-                const result = await callGoogleVisionAsync(base64);
+                const result = await callGoogleVisionAsync(base64, uri);
                 setStatus(result);
             } catch (error) {
                 setStatus(`Error: ${error.message}`);
@@ -93,26 +139,233 @@ export default function Scan({ locations, currentLoc }) {
     const Main = ({ navigation }) => {
         return (
             <SafeAreaView>
-                {image && (
-                    <>
-                        <TouchableOpacity onPress={() => openCamera()}>
-                            <SimpleLineIcons
-                                name="arrow-left-circle"
-                                size={30}
-                            ></SimpleLineIcons>
-                        </TouchableOpacity>
+                {image ? (
+                    <ScrollView>
+                        <View
+                            style={{ backgroundColor: "#5DB075", height: 200 }}
+                        >
+                            <TouchableOpacity
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    marginTop: 10,
+                                }}
+                                onPress={() => {
+                                    setTypes(null);
+                                    setImage(null);
+                                }}
+                            >
+                                <Feather
+                                    name="chevrons-left"
+                                    size={30}
+                                    color="white"
+                                ></Feather>
+                                <Text
+                                    style={{
+                                        color: "white",
+                                        fontWeight: "600",
+                                        fontSize: 16,
+                                    }}
+                                >
+                                    Back
+                                </Text>
+                            </TouchableOpacity>
+                            <Text
+                                style={{
+                                    alignSelf: "center",
+                                    color: "white",
+                                    fontSize: 30,
+                                    fontWeight: "700",
+                                }}
+                            >
+                                Scan Results 🔎
+                            </Text>
+                        </View>
+                        <View
+                            style={{
+                                position: "absolute",
+                                alignSelf: "center",
+                                top: 100,
+                                shadowColor: "black",
+                                shadowOpacity: 0.2,
+                                shadowRadius: 10,
+                            }}
+                        >
+                            <Image
+                                source={{ uri: image }}
+                                style={{
+                                    width: 160,
+                                    height: 160,
+                                    borderRadius: 80,
+                                }}
+                            />
+                        </View>
 
-                        <Text>You have scanned</Text>
-                        {types && types.map((type) => <Text>{type}</Text>)}
-                        <Image
-                            source={{ uri: image }}
-                            style={{ width: 200, height: 200 }}
-                        />
-                        <Button
-                            title="Find Nearest Recyling Bin"
-                            onPress={() => navigation.navigate("MapPage")}
-                        ></Button>
-                    </>
+                        <View
+                            style={{
+                                alignItems: "center",
+                                paddingVertical: 80,
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    fontSize: 28,
+                                    fontWeight: "700",
+                                }}
+                            >
+                                You have scanned:
+                            </Text>
+                            {!types && (
+                                <ActivityIndicator
+                                    size="large"
+                                    color="#4B9460"
+                                    marginTop={20}
+                                />
+                            )}
+                            {types &&
+                                types.map((type) => (
+                                    <View
+                                        style={{
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            marginTop: 10,
+                                        }}
+                                    >
+                                        <Text
+                                            style={{
+                                                fontSize: 20,
+                                                fontWeight: "600",
+                                                opacity: 0.6,
+                                            }}
+                                        >
+                                            {type.kind}
+                                        </Text>
+                                        <Text
+                                            style={{
+                                                opacity: 0.4,
+                                            }}
+                                        >{`(${(type.accuracy * 100).toFixed(
+                                            2
+                                        )}% likely)`}</Text>
+                                    </View>
+                                ))}
+                            {types && (
+                                <>
+                                    <Text
+                                        style={{
+                                            fontSize: 24,
+                                            fontWeight: "700",
+                                            marginTop: 20,
+                                        }}
+                                    >
+                                        🎉 40 Points Earned! 🎉
+                                    </Text>
+                                    <View style={styles.card}>
+                                        <Text
+                                            style={{
+                                                color: "#4B9460",
+                                                fontSize: 20,
+                                                fontWeight: "700",
+                                            }}
+                                        >
+                                            Recycling Categories:
+                                        </Text>
+                                        <View
+                                            style={{
+                                                flexDirection: "row",
+                                                marginVertical: 10,
+                                                justifyContent: "center",
+                                            }}
+                                        >
+                                            <View style={styles.tag}>
+                                                <Text style={styles.kind}>
+                                                    Can
+                                                </Text>
+                                            </View>
+                                            <View style={styles.tag}>
+                                                <Text style={styles.kind}>
+                                                    Scrap Metal
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        <TouchableOpacity
+                                            style={styles.add}
+                                            onPress={() =>
+                                                navigation.navigate("MapPage")
+                                            }
+                                        >
+                                            <Text
+                                                style={{
+                                                    color: "white",
+                                                    fontWeight: "700",
+                                                    fontSize: 16,
+                                                    textAlign: "center",
+                                                    marginRight: 10,
+                                                }}
+                                            >
+                                                📍Find Nearest Recyling Bin
+                                            </Text>
+                                            <Feather
+                                                name="chevrons-right"
+                                                size={30}
+                                                color="white"
+                                            ></Feather>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={styles.fact}>
+                                        <Text
+                                            style={{
+                                                color: "#4B9460",
+                                                fontSize: 20,
+                                                fontWeight: "700",
+                                            }}
+                                        >
+                                            🤔Did you know?
+                                        </Text>
+                                        <Text style={styles.fact_text}>
+                                            Companies can produce as many as
+                                            80,000,000 Aluminum cans every year?{" "}
+                                        </Text>
+                                        <Text style={styles.fact_text}>
+                                            That’s a lot of soda!
+                                        </Text>
+                                    </View>
+                                </>
+                            )}
+                        </View>
+                    </ScrollView>
+                ) : (
+                    <View
+                        style={{
+                            backgroundColor: "black",
+                            justifyContent: "center",
+                            height: "100%",
+                        }}
+                    >
+                        <View
+                            style={{
+                                backgroundColor: "white",
+                                alignSelf: "center",
+                                borderRadius: 10,
+                                shadowColor: "black",
+                                shadowOpacity: 0.2,
+                                shadowRadius: 50,
+                                paddingHorizontal: 10,
+                                paddingVertical: 10,
+                            }}
+                        >
+                            <Button
+                                onPress={openCamera}
+                                title="Open camera"
+                                color={"grey"}
+                            />
+                            <Button
+                                title="Pick an image from camera roll"
+                                onPress={pickImage}
+                                color={"grey"}
+                            />
+                        </View>
+                    </View>
                 )}
             </SafeAreaView>
         );
@@ -138,4 +391,54 @@ export default function Scan({ locations, currentLoc }) {
 
 const styles = StyleSheet.create({
     page: {},
+    add: {
+        alignSelf: "center",
+        backgroundColor: "#5DB075",
+        borderRadius: 30,
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        alignItems: "center",
+        flexDirection: "row",
+    },
+    tag: {
+        borderWidth: 1,
+
+        borderColor: "#5DB075",
+        paddingHorizontal: 8,
+        paddingVertical: 5,
+        borderRadius: 8,
+        marginHorizontal: 5,
+        marginVertical: 5,
+    },
+    kind: {
+        color: "#5DB075",
+        fontSize: 12,
+        fontWeight: "500",
+    },
+    card: {
+        backgroundColor: "white",
+        width: 320,
+        borderRadius: 15,
+        marginVertical: 20,
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+        shadowColor: "black",
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        alignItems: "center",
+    },
+    fact: {
+        width: 320,
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+        borderRadius: 15,
+        borderColor: "#5DB075",
+        borderWidth: 2,
+        borderStyle: "dashed",
+    },
+    fact_text: {
+        // color: "#4B9460",
+        marginTop: 10,
+        opacity: 0.6,
+    },
 });
