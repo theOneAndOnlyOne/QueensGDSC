@@ -1,5 +1,9 @@
 # Introducing, EcoLink
 
+
+https://user-images.githubusercontent.com/85253089/160965090-ab2519a3-2e5c-44eb-ae9b-2d1941c8c90f.mp4
+
+
 ## How to Run
 - Run `npm install`
 - Replace all image paths with either their corresponding local paths on your device, or their uri from an online source (however the code will still compile without this step, just that the image will not show up)
