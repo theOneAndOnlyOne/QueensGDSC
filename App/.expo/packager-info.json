@@ -6,5 +6,5 @@
   "expoServerNgrokUrl": "https://8t-kkf.anonymous.app.exp.direct",
   "packagerNgrokUrl": "https://packager.8t-kkf.anonymous.app.exp.direct",
   "ngrokPid": 65490,
-  "webpackServerPort": null
+  "webpackServerPort": 19006
 }

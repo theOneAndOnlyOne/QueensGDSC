@@ -15,7 +15,10 @@ import { FontAwesome } from "react-native-vector-icons";
 export default function Landing({ navigation }) {
     const [logo, setLogo] = useState(true);
     const [isSignup, setIsSignup] = useState(true);
-    const [text, setText] = useState("");
+    const [user, setUser] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [checked, setChecked] = useState(false);
     const windowWidth = Dimensions.get("window").width;
     const windowHeight = Dimensions.get("window").height;
     return logo ? (
@@ -65,23 +68,24 @@ export default function Landing({ navigation }) {
 
             <TextInput
                 style={styles.input}
-                onChangeText={setText}
-                value={text}
+                onChangeText={setUser}
+                value={user}
                 selectionColor={"#4B9460"}
                 placeholder="User Name"
             ></TextInput>
             <TextInput
                 style={styles.input}
-                onChangeText={setText}
-                value={text}
+                onChangeText={setEmail}
+                value={email}
                 selectionColor={"#4B9460"}
                 placeholder="Email"
             ></TextInput>
             <TextInput
                 style={styles.input}
-                onChangeText={setText}
-                value={text}
+                onChangeText={setPassword}
+                value={password}
                 selectionColor={"#4B9460"}
+                secureTextEntry={true}
                 placeholder="Password"
             ></TextInput>
             <CheckBox
@@ -93,9 +97,13 @@ export default function Landing({ navigation }) {
                     borderWidth: 0,
                     width: 300,
                 }}
+                checked={checked}
+                onPress={() => setChecked(!checked)}
+                checkedColor="#5DB075"
             ></CheckBox>
             <TouchableOpacity
                 style={{ ...styles.btn, backgroundColor: "#5DB075" }}
+                onPress={() => navigation.navigate("MainApp")}
             >
                 <Text
                     style={{
@@ -107,7 +115,10 @@ export default function Landing({ navigation }) {
                     Sign up
                 </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btn}>
+            <TouchableOpacity
+                style={styles.btn}
+                onPress={() => navigation.navigate("MainApp")}
+            >
                 <FontAwesome
                     name="google"
                     color="#5DB075"
@@ -152,20 +163,22 @@ export default function Landing({ navigation }) {
             </TouchableOpacity>
             <TextInput
                 style={styles.input}
-                onChangeText={setText}
-                value={text}
+                onChangeText={setUser}
+                value={user}
                 selectionColor={"#4B9460"}
                 placeholder="User Name or Email"
             ></TextInput>
             <TextInput
                 style={styles.input}
-                onChangeText={setText}
-                value={text}
+                onChangeText={setPassword}
+                value={password}
                 selectionColor={"#4B9460"}
+                secureTextEntry={true}
                 placeholder="Password"
             ></TextInput>
             <TouchableOpacity
                 style={{ ...styles.btn, backgroundColor: "#5DB075" }}
+                onPress={() => navigation.navigate("MainApp")}
             >
                 <Text
                     style={{
