@@ -14,6 +14,10 @@ Hi there, this is Joshua Gonzales, Alessia Panzica, Olivia Xu, and Aaliyah Chang
 
 EcoLink is social media concept that encourages sustainable living by allowing users to scan trash articles, determine it's recycability, search for disposal areas via EcoLin's database and post about ecofriendly events happening in their communities.
 
+Although our application's front and back end were developed in React Native and Firebase, EcoLink was first modelled and tested in Figma. The link to the mostly functional prototype is as follows:
+https://www.figma.com/proto/40tFoXuueuNcOStK7mxIZg/Trash-Detection-Algo-App-%5BWorking-Title%5D?node-id=117%3A624&scaling=scale-down&page-id=0%3A1&starting-point-node-id=139%3A589
+You can click through available buttons to navigate through the application in Figma, but all the pages can be seen by clicking on the arrows directly below the simulated screen to simply slide through each page part of the model.
+
 As per the Solution Challenge, most of the app has been designed to work with Google technologies and we have outlined them in the following section.
 
 ### Technologies and Next Steps
