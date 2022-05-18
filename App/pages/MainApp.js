@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { StatusBar, TouchableOpacityBase, View } from "react-native";
+import { StatusBar, View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigationContainer } from "@react-navigation/native";
 import { Ionicons, MaterialIcons } from "react-native-vector-icons";
 import UserFeed from "./UserFeed";
 import LeaderBoard from "./LeaderBoard";
@@ -9,61 +8,47 @@ import Scan from "./Scan";
 import AllLocations from "./AllLocations";
 import Profile from "./Profile";
 import * as Location from "expo-location";
-
+import { collection, doc, getDocs } from "firebase/firestore";
 const Tab = createBottomTabNavigator();
 
-export default function MainApp() {
+export default function MainApp({ auth, currentUser, setCurrentUser, db }) {
     const [currentLoc, setCurrentLoc] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [locations, setLocations] = useState(null);
-    const [ownPosts, setOwnPosts] = useState([
-        {
-            user: "Olivia",
-            userInfo: "CS Student at Queen's",
-            pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/olivia.jpg",
-            image: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/logo.jpg",
-            description: "So excited to join the EcoLink community!",
-            createdAt: new Date(2022, 4, 27, 17, 24),
-        },
-    ]);
-    const [posts, setPosts] = useState([
-        {
-            user: "Aaliyah",
-            userInfo: "Engineering Student at Queen's",
-            pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/aaliyah.jpeg",
-            image: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/waste.jpeg",
-            description:
-                "Join me this Saturday for an interactive workshop on how to make the best use of your food waste!",
-            createdAt: new Date(2022, 2, 27, 17, 24),
-        },
-        {
-            user: "Joshua",
-            userInfo: "Engineering Student at Queen's",
-            pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/josh.jpeg",
-            image: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/beach.png",
-            description:
-                "Going to the Breakwater Park this weekend to do a beach cleaning, hmu if you would like to join!",
-            createdAt: new Date(2022, 2, 25, 17, 24),
-        },
+    const [updatePosts, setUpdatePosts] = useState(false);
+    const [updateLocations, setUpdateLocations] = useState(false);
+    const [posts, setPosts] = useState();
+    const [ownPosts, setOwnPosts] = useState();
 
-        {
-            user: "Alessia",
-            userInfo: "Engineering Student at Queen's",
-            pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/alessia.jpeg",
-            image: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/recycle1.png",
-            description: "Went on a garbage collecting trip!",
-            createdAt: new Date(2022, 3, 27, 17, 24),
-        },
-        {
-            user: "Olivia",
-            userInfo: "CS Student at Queen's",
-            pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/olivia.jpg",
-            image: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/logo.jpg",
-            description: "So excited to join the EcoLink community!",
-            createdAt: new Date(2022, 4, 27, 17, 24),
-        },
-    ]);
+    const getLocations = async () => {
+        setLocations(null);
+        const data = [];
+        const locationsSnapshot = await getDocs(collection(db, "locations"));
 
+        locationsSnapshot.forEach((doc) => {
+            const { name, coords, tags, numOfDropOffs, tonsRecycled, image } =
+                doc.data();
+
+            data.push({
+                name,
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+                tags,
+                numOfDropOffs,
+                tonsRecycled,
+                image,
+            });
+        });
+        setTimeout(() => setLocations(data), 2000);
+        //console.log(locations);
+    };
+    // useEffect(() => {
+
+    // }, []);
+    // useEffect(() => {
+    //     getLocations();
+    //     setUpdateLocations(false);
+    // }, [updateLocations]);
     useEffect(() => {
         (async () => {
             console.log("hey");
@@ -72,53 +57,17 @@ export default function MainApp() {
                 setErrorMsg("Permission to access location was denied");
                 return;
             }
-
+            getLocations();
             await Location.getCurrentPositionAsync({}).then((res) => {
                 console.log(res);
                 setCurrentLoc(res);
-                setLocations([
-                    {
-                        name: "Lenny Hall",
-                        latitude: res.coords.latitude + 0.0012,
-                        longitude: res.coords.longitude - 0.003,
-                        image: null,
-                        tags: ["Plastic", "Can"],
-                        numOfDropOffs: 234,
-                        tonsRecycled: 12,
-                    },
-                    {
-                        name: "Ellis Hall",
-                        latitude: res.coords.latitude,
-                        longitude: res.coords.longitude + 0.002,
-                        image: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/bins1.jpg",
-                        tags: ["Paper", "Plastic", "Can", "Glass", "Landfill"],
-                        numOfDropOffs: 52,
-                        tonsRecycled: 5,
-                    },
-                    {
-                        name: "Location 21",
-                        latitude: res.coords.latitude - 0.0016,
-                        longitude: res.coords.longitude - 0.002,
-                        image: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/bins2.jpg",
-                        tags: ["Organics", "Can"],
-                        numOfDropOffs: 6,
-                        tonsRecycled: 1,
-                    },
-                    {
-                        name: "Queen's Center",
-                        latitude: res.coords.latitude + 0.002,
-                        longitude: res.coords.longitude + 0.001,
-                        image: null,
-                        tags: ["Paper", "Organics", "Can"],
-                        numOfDropOffs: 6,
-                        tonsRecycled: 1,
-                    },
-                ]);
             });
         })();
     }, []);
-
-    useEffect(() => {}, [locations]);
+    useEffect(() => {
+        getLocations();
+        setUpdateLocations(false);
+    }, [updateLocations]);
 
     let text = "Waiting..";
     if (errorMsg) {
@@ -146,11 +95,15 @@ export default function MainApp() {
                 >
                     {(props) => (
                         <UserFeed
+                            currentUser={currentUser}
                             {...props}
                             posts={posts}
                             setPosts={setPosts}
                             ownPosts={ownPosts}
                             setOwnPosts={setOwnPosts}
+                            db={db}
+                            updatePosts={updatePosts}
+                            setUpdatePosts={setUpdatePosts}
                         ></UserFeed>
                     )}
                 </Tab.Screen>
@@ -176,6 +129,11 @@ export default function MainApp() {
                             setPosts={setPosts}
                             ownPosts={ownPosts}
                             setOwnPosts={setOwnPosts}
+                            setUpdateLocations={setUpdateLocations}
+                            db={db}
+                            currentUser={currentUser}
+                            updatePosts={updatePosts}
+                            setUpdatePosts={setUpdatePosts}
                         ></AllLocations>
                     )}
                 </Tab.Screen>
@@ -216,6 +174,9 @@ export default function MainApp() {
                             setPosts={setPosts}
                             ownPosts={ownPosts}
                             setOwnPosts={setOwnPosts}
+                            setUpdatePosts={setUpdatePosts}
+                            currentUser={currentUser}
+                            db={db}
                         ></Scan>
                     )}
                 </Tab.Screen>
@@ -245,7 +206,16 @@ export default function MainApp() {
                     }}
                 >
                     {(props) => (
-                        <Profile {...props} ownPosts={ownPosts}></Profile>
+                        <Profile
+                            {...props}
+                            ownPosts={ownPosts}
+                            auth={auth}
+                            currentUser={currentUser}
+                            setCurrentUser={setCurrentUser}
+                            updatePosts={updatePosts}
+                            setUpdatePosts={setUpdatePosts}
+                            db={db}
+                        ></Profile>
                     )}
                 </Tab.Screen>
             </Tab.Navigator>

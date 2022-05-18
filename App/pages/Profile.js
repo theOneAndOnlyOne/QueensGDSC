@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     StyleSheet,
     View,
@@ -7,11 +7,90 @@ import {
     ScrollView,
     TouchableOpacity,
     Image,
+    ActivityIndicator,
 } from "react-native";
 import moment from "moment";
+import { signOut } from "firebase/auth";
+import {
+    collection,
+    getDocs,
+    getDoc,
+    doc,
+    orderBy,
+    query,
+} from "firebase/firestore";
 
-export default function Profile({ ownPosts, navigation }) {
+export default function Profile({
+    auth,
+    ownPosts,
+    navigation,
+    currentUser,
+    setCurrentUser,
+    updatePosts,
+    setUpdatePosts,
+    db,
+}) {
     const [showStats, setShowStats] = useState(true);
+    const [posts, setPosts] = useState();
+    const handleSignOut = () => {
+        signOut(auth)
+            .then(() => {
+                navigation.navigate("Landing");
+                setCurrentUser(null);
+            })
+            .catch((error) => alert(error.message));
+    };
+    const getOwnPosts = async () => {
+        setPosts(null);
+        const data = [];
+        const userRef = doc(db, "users", currentUser.uid);
+        const ownPosts = await (await getDoc(userRef)).data().posts;
+        //console.log(ownPosts);
+        ownPosts.forEach(async (doc) => {
+            const post = await getDoc(doc);
+            const { createdAt, description, image } = post.data();
+            data.push({
+                createdAt,
+                description,
+                image,
+                user: currentUser.name,
+                userInfo: currentUser.info,
+                pfp: currentUser.pfp,
+            });
+            data.sort((a, b) => b.createdAt - a.createdAt);
+            setTimeout(() => setPosts(data), 1000);
+        });
+        // const postsSnapshot = await getDocs(
+        //     query(collection(db, "posts"), orderBy("createdAt", "desc"))
+        // );
+
+        // postsSnapshot.forEach(async (doc) => {
+        //     const { createdAt, description, image } = doc.data();
+        //     const user = await getDoc(doc.data().user);
+        //     const { name, info, pfp } = user.data();
+        //     data.push({
+        //         createdAt,
+        //         description,
+        //         image,
+        //         user: name,
+        //         userInfo: info,
+        //         pfp,
+        //     });
+        // });
+        // console.log("setting posts", data[0]);
+        // setTimeout(() => setPosts(data), 2000);
+
+        // console.log("posts updated", data[0]);
+        // //setIsLoading(false);
+    };
+    useEffect(() => {
+        getOwnPosts();
+    }, []);
+    useEffect(() => {
+        getOwnPosts();
+        setUpdatePosts(false);
+    }, [updatePosts]);
+
     return (
         <SafeAreaView>
             <View style={{ backgroundColor: "#5DB075", height: 180 }}>
@@ -43,11 +122,7 @@ export default function Profile({ ownPosts, navigation }) {
                     >
                         My Profile
                     </Text>
-                    <TouchableOpacity
-                        onPress={() => {
-                            navigation.navigate("Landing");
-                        }}
-                    >
+                    <TouchableOpacity onPress={handleSignOut}>
                         <Text
                             style={{
                                 color: "white",
@@ -71,13 +146,14 @@ export default function Profile({ ownPosts, navigation }) {
                 }}
             >
                 <Image
-                    source={require("../assets/olivia.jpg")}
+                    source={{ uri: currentUser.pfp }}
                     style={{
                         width: 160,
                         height: 160,
                         borderRadius: 80,
                         borderWidth: 5,
                         borderColor: "white",
+                        backgroundColor: "#ADADAD",
                     }}
                 />
             </View>
@@ -94,7 +170,7 @@ export default function Profile({ ownPosts, navigation }) {
                         fontWeight: "600",
                     }}
                 >
-                    Hi, Olivia!
+                    {`Hi, ${currentUser.name}!`}
                 </Text>
                 <View style={styles.tab_bg}>
                     <TouchableOpacity
@@ -150,8 +226,14 @@ export default function Profile({ ownPosts, navigation }) {
                                 resizeMode: "contain",
                             }}
                         ></Image>
+                    ) : !posts ? (
+                        <ActivityIndicator
+                            size="large"
+                            color="#4B9460"
+                            marginTop={20}
+                        ></ActivityIndicator>
                     ) : (
-                        ownPosts.map((post) => (
+                        posts.map((post) => (
                             <View
                                 style={{
                                     marginVertical: 5,
@@ -169,9 +251,9 @@ export default function Profile({ ownPosts, navigation }) {
                                         fontSize: 12,
                                         opacity: 0.5,
                                     }}
-                                >{`${moment(post.createdAt).fromNow(
-                                    true
-                                )} ago`}</Text>
+                                >{`${moment(
+                                    post.createdAt.seconds * 1000
+                                ).fromNow(true)} ago`}</Text>
                                 <View style={{ flexDirection: "row" }}>
                                     <Image
                                         source={{ uri: post.pfp }}

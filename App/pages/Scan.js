@@ -15,6 +15,9 @@ import { Feather } from "react-native-vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import MapPage from "./MapPage";
 
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
+
 const Stack = createNativeStackNavigator();
 
 export default function Scan({
@@ -23,15 +26,19 @@ export default function Scan({
     posts,
     setPosts,
     ownPosts,
-    setOwnPosts,
+    setUpdatePosts,
+    db,
+    currentUser,
 }) {
     const [image, setImage] = useState(null);
     const [status, setStatus] = useState(null);
     const [types, setTypes] = useState(null);
-    const API_KEY = "Enter your API key here";
+    const [uploading, setUploading] = useState(false);
+    const API_KEY = "AIzaSyD61WL16VDcLiNB1MMOVLNkabfph0ohXS8";
     const API_URL = `https://vision.googleapis.com/v1/images:annotate?key=${API_KEY}`;
+    const storage = getStorage();
 
-    async function callGoogleVisionAsync(image, uri) {
+    const callGoogleVisionAsync = async (image, uri) => {
         const body = {
             requests: [
                 {
@@ -64,30 +71,49 @@ export default function Scan({
         });
         console.log("callGoogleVisionAsync -> result", results);
         setTypes(results);
-        setPosts([
-            {
-                user: "Olivia",
-                userInfo: "CS Student at Queen's",
-                pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/olivia.jpg",
-                image: uri,
-                description: "🎉 Earned 40 points for scanning an item 🎉",
-                createdAt: new Date(),
-            },
-            ...posts,
-        ]);
-        setOwnPosts([
-            {
-                user: "Olivia",
-                userInfo: "CS Student at Queen's",
-                pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/olivia.jpg",
-                image: uri,
-                description: "🎉 Earned 40 points for scanning an item 🎉",
-                createdAt: new Date(),
-            },
-            ...ownPosts,
-        ]);
-    }
+    };
 
+    const addNewPost = async (image) => {
+        setUploading(true);
+        const imageRef = ref(
+            storage,
+            image.substring(image.lastIndexOf("/") + 1)
+        );
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function () {
+                reject(new TypeError("Network request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", image, true);
+            xhr.send(null);
+        });
+        console.log("uploading");
+        uploadBytes(imageRef, blob, { contentType: "image/jpg" })
+            .then(async (snapshot) => {
+                console.log("Uploaded a blob or file!");
+                const path = await getDownloadURL(imageRef);
+                const postRef = await addDoc(collection(db, "posts"), {
+                    user: doc(db, "users", currentUser.uid),
+                    pfp: currentUser.pfp,
+                    image: path,
+                    description: "🎉 Earned 40 points for scanning an item 🎉",
+                    createdAt: new Date(),
+                });
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    posts: currentUser.posts.concat([
+                        doc(db, "posts", postRef.id),
+                    ]),
+                });
+            })
+            .then(() => {
+                setUpdatePosts(true);
+                setUploading(false);
+            });
+    };
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         const { cancelled, uri, base64 } =
@@ -100,6 +126,7 @@ export default function Scan({
             try {
                 const result = await callGoogleVisionAsync(base64, uri);
                 setStatus(result);
+                addNewPost(uri);
             } catch (error) {
                 setStatus(`Error: ${error.message}`);
             }
@@ -128,6 +155,7 @@ export default function Scan({
             try {
                 const result = await callGoogleVisionAsync(base64, uri);
                 setStatus(result);
+                addNewPost(uri);
             } catch (error) {
                 setStatus(`Error: ${error.message}`);
             }
@@ -215,42 +243,40 @@ export default function Scan({
                             >
                                 You have scanned:
                             </Text>
-                            {!types && (
+                            {uploading || !types ? (
                                 <ActivityIndicator
                                     size="large"
                                     color="#4B9460"
                                     marginTop={20}
                                 />
-                            )}
-                            {types &&
-                                types.map((type) => (
-                                    <View
-                                        style={{
-                                            flexDirection: "column",
-                                            alignItems: "center",
-                                            marginTop: 10,
-                                        }}
-                                    >
-                                        <Text
+                            ) : (
+                                <>
+                                    {types.map((type) => (
+                                        <View
                                             style={{
-                                                fontSize: 20,
-                                                fontWeight: "600",
-                                                opacity: 0.6,
+                                                flexDirection: "column",
+                                                alignItems: "center",
+                                                marginTop: 10,
                                             }}
                                         >
-                                            {type.kind}
-                                        </Text>
-                                        <Text
-                                            style={{
-                                                opacity: 0.4,
-                                            }}
-                                        >{`(${(type.accuracy * 100).toFixed(
-                                            2
-                                        )}% likely)`}</Text>
-                                    </View>
-                                ))}
-                            {types && (
-                                <>
+                                            <Text
+                                                style={{
+                                                    fontSize: 20,
+                                                    fontWeight: "600",
+                                                    opacity: 0.6,
+                                                }}
+                                            >
+                                                {type.kind}
+                                            </Text>
+                                            <Text
+                                                style={{
+                                                    opacity: 0.4,
+                                                }}
+                                            >{`(${(type.accuracy * 100).toFixed(
+                                                2
+                                            )}% likely)`}</Text>
+                                        </View>
+                                    ))}
                                     <Text
                                         style={{
                                             fontSize: 24,

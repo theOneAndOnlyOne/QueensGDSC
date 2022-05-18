@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -7,92 +7,122 @@ import {
     ScrollView,
     TouchableOpacity,
     StyleSheet,
+    ActivityIndicator,
 } from "react-native";
 import moment from "moment";
 
-export default function Posts({ navigation, posts }) {
+export default function Posts({ navigation, currentUser, posts }) {
     return (
         <SafeAreaView>
-            <ScrollView style={{ marginHorizontal: 20 }}>
-                <View style={{ flexDirection: "row", marginTop: 10 }}>
-                    <Text style={{ fontWeight: "600", fontSize: 32 }}>
-                        Welcome,{`  `}
-                    </Text>
-                    <Text style={{ fontWeight: "300", fontSize: 32 }}>
-                        Olivia!
-                    </Text>
-                </View>
-                <TouchableOpacity
-                    style={styles.add}
-                    onPress={() => navigation.navigate("AddPost")}
-                >
-                    <Text
-                        style={{
-                            color: "white",
-                            fontWeight: "700",
-                            fontSize: 16,
-                            textAlign: "center",
-                        }}
-                    >
-                        Create New Post
-                    </Text>
-                </TouchableOpacity>
-                {posts.map((post) => (
-                    <View
-                        style={{
-                            marginVertical: 5,
-                            backgroundColor: "white",
-                            borderRadius: 10,
-                            paddingHorizontal: 20,
-                            paddingVertical: 15,
-                        }}
+            {!currentUser ? (
+                <ActivityIndicator
+                    size="large"
+                    color="#4B9460"
+                    marginTop={20}
+                ></ActivityIndicator>
+            ) : (
+                <ScrollView style={{ marginHorizontal: 20 }}>
+                    <View style={{ flexDirection: "row", marginTop: 10 }}>
+                        <Text style={{ fontWeight: "600", fontSize: 32 }}>
+                            Welcome,{`  `}
+                        </Text>
+                        <Text style={{ fontWeight: "300", fontSize: 32 }}>
+                            {currentUser.name}
+                        </Text>
+                    </View>
+                    <TouchableOpacity
+                        style={styles.add}
+                        onPress={() => navigation.navigate("AddPost")}
                     >
                         <Text
                             style={{
-                                position: "absolute",
-                                right: 10,
-                                top: 5,
-                                fontSize: 12,
-                                opacity: 0.5,
+                                color: "white",
+                                fontWeight: "700",
+                                fontSize: 16,
+                                textAlign: "center",
                             }}
-                        >{`${moment(post.createdAt).fromNow(true)} ago`}</Text>
-                        <View style={{ flexDirection: "row" }}>
-                            <Image
-                                source={{ uri: post.pfp }}
+                        >
+                            Create New Post
+                        </Text>
+                    </TouchableOpacity>
+                    {!posts ? (
+                        <ActivityIndicator
+                            size="large"
+                            color="#4B9460"
+                            marginTop={20}
+                        ></ActivityIndicator>
+                    ) : (
+                        posts.map((post) => (
+                            <View
                                 style={{
-                                    width: 40,
-                                    height: 40,
+                                    marginVertical: 5,
+                                    backgroundColor: "white",
                                     borderRadius: 10,
-                                    marginRight: 10,
+                                    paddingHorizontal: 20,
+                                    paddingVertical: 15,
                                 }}
-                            ></Image>
-                            <View style={{ justifyContent: "center" }}>
+                            >
+                                {/* {console.log(post)} */}
                                 <Text
                                     style={{
-                                        fontWeight: "700",
-                                        fontSize: 16,
+                                        position: "absolute",
+                                        right: 10,
+                                        top: 5,
+                                        fontSize: 12,
+                                        opacity: 0.5,
                                     }}
                                 >
-                                    {post.user}
+                                    {moment(
+                                        post.createdAt.seconds * 1000
+                                    ).fromNow()}
                                 </Text>
-                                <Text style={{ opacity: 0.6, fontSize: 12 }}>
-                                    {post.userInfo}
+
+                                <View style={{ flexDirection: "row" }}>
+                                    <Image
+                                        source={{
+                                            uri: post.pfp,
+                                        }}
+                                        style={{
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: 10,
+                                            marginRight: 10,
+                                        }}
+                                    ></Image>
+                                    <View style={{ justifyContent: "center" }}>
+                                        <Text
+                                            style={{
+                                                fontWeight: "700",
+                                                fontSize: 16,
+                                            }}
+                                        >
+                                            {post.user}
+                                        </Text>
+                                        <Text
+                                            style={{
+                                                opacity: 0.6,
+                                                fontSize: 12,
+                                            }}
+                                        >
+                                            {post.userInfo}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <Text style={{ marginVertical: 10 }}>
+                                    {post.description}
                                 </Text>
+                                <Image
+                                    source={{ uri: post.image }}
+                                    style={{
+                                        borderRadius: 10,
+                                        height: 200,
+                                    }}
+                                ></Image>
                             </View>
-                        </View>
-                        <Text style={{ marginVertical: 10 }}>
-                            {post.description}
-                        </Text>
-                        <Image
-                            source={{ uri: post.image }}
-                            style={{
-                                borderRadius: 10,
-                                height: 200,
-                            }}
-                        ></Image>
-                    </View>
-                ))}
-            </ScrollView>
+                        ))
+                    )}
+                </ScrollView>
+            )}
         </SafeAreaView>
     );
 }

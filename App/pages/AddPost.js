@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
@@ -9,20 +9,31 @@ import {
     StyleSheet,
     TextInput,
     Button,
+    Platform,
+    ActivityIndicator,
 } from "react-native";
 import { FontAwesome, Feather } from "react-native-vector-icons";
 import * as ImagePicker from "expo-image-picker";
-
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
 export default function AddPost({
     navigation,
     posts,
     setPosts,
     ownPosts,
     setOwnPosts,
+    db,
+    currentUser,
+    getPosts,
+    setIsLoading,
+    setUpdatePosts,
 }) {
     const [image, setImage] = useState(null);
     const [showPicker, setShowPicker] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [text, setText] = useState("");
+    const storage = getStorage();
+
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -61,35 +72,51 @@ export default function AddPost({
         }
     };
 
-    const addNewPost = () => {
-        navigation.navigate("Posts");
-        setPosts([
-            {
-                user: "Olivia",
-                userInfo: "CS Student at Queen's",
-                pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/olivia.jpg",
-                image: image,
-                description: text,
-                createdAt: new Date(),
-            },
-            ...posts,
-        ]);
-        console.log(ownPosts);
-        setOwnPosts([
-            {
-                user: "Olivia",
-                userInfo: "CS Student at Queen's",
-                pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/olivia.jpg",
-                image: image,
-                description: text,
-                createdAt: new Date(),
-            },
-            ...ownPosts,
-        ]);
+    const addNewPost = async () => {
+        setUploading(true);
+        const imageRef = ref(
+            storage,
+            image.substring(image.lastIndexOf("/") + 1)
+        );
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function () {
+                reject(new TypeError("Network request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", image, true);
+            xhr.send(null);
+        });
+        uploadBytes(imageRef, blob, { contentType: "image/jpg" })
+            .then(async (snapshot) => {
+                console.log("Uploaded a blob or file!");
+                const path = await getDownloadURL(imageRef);
+                const postRef = await addDoc(collection(db, "posts"), {
+                    user: doc(db, "users", currentUser.uid),
+                    pfp: currentUser.pfp,
+                    image: path,
+                    description: text,
+                    createdAt: new Date(),
+                });
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    posts: currentUser.posts.concat([
+                        doc(db, "posts", postRef.id),
+                    ]),
+                });
+            })
+            .then(() => {
+                setUpdatePosts(true);
 
-        setImage(null);
-        setText(null);
+                navigation.navigate("Posts");
+                setImage(null);
+                setText(null);
+                setUploading(false);
+            });
     };
+
     return (
         <View
             style={{
@@ -177,21 +204,29 @@ export default function AddPost({
                     }}
                 />
             )}
-
-            <TouchableOpacity
-                style={{ ...styles.add_photo, backgroundColor: "#5DB075" }}
-                onPress={addNewPost}
-            >
-                <Text
-                    style={{
-                        color: "white",
-                        fontSize: 18,
-                        fontWeight: "600",
-                    }}
+            {uploading ? (
+                <ActivityIndicator
+                    size="large"
+                    color="#4B9460"
+                    marginTop={20}
+                ></ActivityIndicator>
+            ) : (
+                <TouchableOpacity
+                    style={{ ...styles.add_photo, backgroundColor: "#5DB075" }}
+                    onPress={addNewPost}
                 >
-                    Done
-                </Text>
-            </TouchableOpacity>
+                    <Text
+                        style={{
+                            color: "white",
+                            fontSize: 18,
+                            fontWeight: "600",
+                        }}
+                    >
+                        Done
+                    </Text>
+                </TouchableOpacity>
+            )}
+
             {showPicker && (
                 <View
                     style={{

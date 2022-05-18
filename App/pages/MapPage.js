@@ -7,9 +7,6 @@ import {
     TouchableOpacity,
     SafeAreaView,
     Image,
-    Button,
-    Modal,
-    ImageStore,
     ScrollView,
     ActivityIndicator,
 } from "react-native";
@@ -132,7 +129,14 @@ export default function MapPage({
     };
 
     return !locations ? (
-        <></>
+        <ActivityIndicator
+            size="large"
+            color="#4B9460"
+            marginTop={20}
+            style={{ paddingTop: 100 }}
+        >
+            {console.log("loading location")}
+        </ActivityIndicator>
     ) : (
         <View style={styles.page}>
             <MapView
@@ -166,7 +170,9 @@ export default function MapPage({
                         ></Ionicons>
                         <Callout tooltip style={styles.container}>
                             <View>
-                                <Text>{`📍 ${loc.name} 📍`}</Text>
+                                <Text
+                                    style={{ paddingHorizontal: 0 }}
+                                >{`📍 ${loc.name} 📍`}</Text>
                             </View>
                         </Callout>
                     </Marker>
@@ -295,10 +301,15 @@ const styles = StyleSheet.create({
     text: { opacity: 0.6, marginTop: 1 },
     container: {
         backgroundColor: "white",
-        width: 150,
+        // position: "relative",
+        // alignSelf: "center",
+        // flex: 1,
+        // position: "relative",
+        width: 160,
         borderRadius: 5,
         alignItems: "center",
         padding: 10,
+        marginHorizontal: 0,
     },
     add: {
         width: 200,

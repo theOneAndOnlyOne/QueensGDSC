@@ -19,6 +19,7 @@
     "expo-location": "~14.0.1",
     "expo-status-bar": "~1.2.0",
     "f": "^1.4.0",
+    "firebase": "^9.6.10",
     "fs": "^0.0.1-security",
     "moment": "^2.29.1",
     "react": "17.0.1",

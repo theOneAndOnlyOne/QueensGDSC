@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     TouchableOpacity,
     Image,
@@ -11,16 +11,79 @@ import {
 } from "react-native";
 import { CheckBox } from "react-native-elements";
 import { FontAwesome } from "react-native-vector-icons";
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    updateProfile,
+} from "firebase/auth";
+import { collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { async } from "@firebase/util";
 
-export default function Landing({ navigation }) {
+export default function Landing({ navigation, auth, setCurrentUser, db }) {
     const [logo, setLogo] = useState(true);
     const [isSignup, setIsSignup] = useState(true);
-    const [user, setUser] = useState("");
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [checked, setChecked] = useState(false);
+    const [id, setId] = useState();
+
     const windowWidth = Dimensions.get("window").width;
     const windowHeight = Dimensions.get("window").height;
+
+    // useEffect(() => {
+    //     const unsubscribe = onAuthStateChanged(auth, (user) => {
+    //         if (user) {
+    //             console.log(user);
+    //             setCurrentUser(user);
+    //             navigation.navigate("MainApp");
+    //         }
+    //     });
+
+    //     return unsubscribe;
+    // }, []);
+
+    const handleSignUp = async () => {
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(async (userCredentials) => {
+                const user = userCredentials.user;
+                await setDoc(doc(db, "users", user.uid), {
+                    name: name,
+                    email: email,
+                    score: 0,
+                    posts: [],
+                    pfp: null,
+                });
+                const loggedIn = await getDoc(
+                    doc(db, "users", user.uid.toString())
+                );
+                setCurrentUser({
+                    ...loggedIn.data(),
+                    uid: user.uid.toString(),
+                });
+                navigation.navigate("MainApp");
+            })
+            .catch((error) => alert(error.message));
+    };
+
+    const handleLogin = () => {
+        signInWithEmailAndPassword(auth, email, password)
+            .then(async (userCredentials) => {
+                const user = userCredentials.user;
+                const loggedIn = await getDoc(
+                    doc(db, "users", user.uid.toString())
+                );
+                setCurrentUser({
+                    ...loggedIn.data(),
+                    uid: user.uid.toString(),
+                });
+                navigation.navigate("MainApp");
+            })
+            .catch((error) => alert(error.message));
+    };
+
     return logo ? (
         <TouchableOpacity onPress={() => setLogo(false)}>
             <Image
@@ -68,8 +131,8 @@ export default function Landing({ navigation }) {
 
             <TextInput
                 style={styles.input}
-                onChangeText={setUser}
-                value={user}
+                onChangeText={setName}
+                value={name}
                 selectionColor={"#4B9460"}
                 placeholder="User Name"
             ></TextInput>
@@ -78,6 +141,7 @@ export default function Landing({ navigation }) {
                 onChangeText={setEmail}
                 value={email}
                 selectionColor={"#4B9460"}
+                secureTextEntry={false}
                 placeholder="Email"
             ></TextInput>
             <TextInput
@@ -103,7 +167,7 @@ export default function Landing({ navigation }) {
             ></CheckBox>
             <TouchableOpacity
                 style={{ ...styles.btn, backgroundColor: "#5DB075" }}
-                onPress={() => navigation.navigate("MainApp")}
+                onPress={handleSignUp}
             >
                 <Text
                     style={{
@@ -163,10 +227,10 @@ export default function Landing({ navigation }) {
             </TouchableOpacity>
             <TextInput
                 style={styles.input}
-                onChangeText={setUser}
-                value={user}
+                onChangeText={setEmail}
+                value={email}
                 selectionColor={"#4B9460"}
-                placeholder="User Name or Email"
+                placeholder="Email"
             ></TextInput>
             <TextInput
                 style={styles.input}
@@ -178,7 +242,7 @@ export default function Landing({ navigation }) {
             ></TextInput>
             <TouchableOpacity
                 style={{ ...styles.btn, backgroundColor: "#5DB075" }}
-                onPress={() => navigation.navigate("MainApp")}
+                onPress={handleLogin}
             >
                 <Text
                     style={{

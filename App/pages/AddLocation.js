@@ -7,23 +7,24 @@ import {
     Image,
     Button,
     TextInput,
+    ActivityIndicator,
 } from "react-native";
 import { FontAwesome, Feather } from "react-native-vector-icons";
 import * as ImagePicker from "expo-image-picker";
-
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { getStorage, ref, getDownloadURL, uploadBytes } from "firebase/storage";
 export default function AddLocation({
     currentLoc,
-    locations,
-    setLocations,
     setAddedNew,
-    posts,
-    setPosts,
-    ownPosts,
-    setOwnPosts,
     navigation,
+    setUpdateLocations,
+    db,
+    currentUser,
+    setUpdatePosts,
 }) {
     const [image, setImage] = useState(null);
     const [locName, setLocName] = useState("");
+    const [uploading, setUploading] = useState(false);
     const [showPicker, setShowPicker] = useState(false);
     const [tags, setTags] = useState([
         { type: "Plastic", selected: false },
@@ -36,6 +37,7 @@ export default function AddLocation({
         { type: "Fabrics", selected: false },
         { type: "Batteries", selected: false },
     ]);
+    const storage = getStorage();
 
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
@@ -74,50 +76,62 @@ export default function AddLocation({
             console.log(result.uri);
         }
     };
-    const addNewLoc = () => {
-        navigation.navigate("MapPage");
-
+    const addNewLoc = async () => {
+        setUploading(true);
         const selectedTags = [];
         tags.forEach((tag) => {
             if (tag.selected === true) {
                 selectedTags.push(tag.type);
             }
         });
-        setLocations([
-            ...locations,
-            {
-                name: locName,
-                latitude: currentLoc.coords.latitude,
-                longitude: currentLoc.coords.longitude,
-                image: image,
-                tags: selectedTags,
-                numOfDropOffs: 0,
-                tonsRecycled: 0,
-            },
-        ]);
-        setPosts([
-            {
-                user: "Olivia",
-                userInfo: "CS Student at Queen's",
-                pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/olivia.jpg",
-                image: image,
-                description: "🎉 Earned 100 points for adding a location 🎉",
-                createdAt: new Date(),
-            },
-            ...posts,
-        ]);
-        setOwnPosts([
-            {
-                user: "Olivia",
-                userInfo: "CS Student at Queen's",
-                pfp: "/Users/oliviachenxu/Documents/QueensGDSC/App/assets/olivia.jpg",
-                image: image,
-                description: "🎉 Earned 100 points for adding a location 🎉",
-                createdAt: new Date(),
-            },
-            ...ownPosts,
-        ]);
-        setAddedNew(true);
+        const imageRef = ref(
+            storage,
+            image.substring(image.lastIndexOf("/") + 1)
+        );
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function () {
+                reject(new TypeError("Network request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", image, true);
+            xhr.send(null);
+        });
+        uploadBytes(imageRef, blob, { contentType: "image/jpg" })
+            .then(async (snapshot) => {
+                //console.log("Uploaded a blob or file!");
+                const path = await getDownloadURL(imageRef);
+                const postRef = await addDoc(collection(db, "posts"), {
+                    user: doc(db, "users", currentUser.uid),
+                    pfp: currentUser.pfp,
+                    image: path,
+                    description:
+                        "🎉 Earned 100 points for adding a location 🎉",
+                    createdAt: new Date(),
+                });
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    posts: currentUser.posts.concat([
+                        doc(db, "posts", postRef.id),
+                    ]),
+                });
+                const locRef = await addDoc(collection(db, "locations"), {
+                    name: locName,
+                    coords: currentLoc.coords,
+                    image: image,
+                    tags: selectedTags,
+                    numOfDropOffs: 0,
+                    tonsRecycled: 0,
+                });
+            })
+            .then(() => {
+                setAddedNew(true);
+                setUpdateLocations(true);
+                setUpdatePosts(true);
+                navigation.navigate("MapPage");
+            });
     };
     return (
         <View
@@ -236,22 +250,29 @@ export default function AddLocation({
                     }}
                 />
             )}
-
-            <TouchableOpacity
-                style={{ ...styles.add_photo, backgroundColor: "#5DB075" }}
-                onPress={addNewLoc}
-            >
-                <Text
-                    style={{
-                        color: "white",
-                        fontSize: 18,
-                        fontWeight: "600",
-                        marginLeft: 20,
-                    }}
+            {uploading ? (
+                <ActivityIndicator
+                    size="large"
+                    color="#4B9460"
+                    marginTop={20}
+                ></ActivityIndicator>
+            ) : (
+                <TouchableOpacity
+                    style={{ ...styles.add_photo, backgroundColor: "#5DB075" }}
+                    onPress={addNewLoc}
                 >
-                    Done
-                </Text>
-            </TouchableOpacity>
+                    <Text
+                        style={{
+                            color: "white",
+                            fontSize: 18,
+                            fontWeight: "600",
+                        }}
+                    >
+                        Done
+                    </Text>
+                </TouchableOpacity>
+            )}
+
             {showPicker && (
                 <View
                     style={{
