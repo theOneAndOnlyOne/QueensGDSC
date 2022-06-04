@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons, MaterialIcons } from "react-native-vector-icons";
 import UserFeed from "./UserFeed";
 import LeaderBoard from "./LeaderBoard";
+import Points from "./Points";
 import Scan from "./Scan";
 import AllLocations from "./AllLocations";
 import Profile from "./Profile";
@@ -181,8 +182,8 @@ export default function MainApp({ auth, currentUser, setCurrentUser, db }) {
                     )}
                 </Tab.Screen>
                 <Tab.Screen
-                    name="LeaderBoard"
-                    component={LeaderBoard}
+                    name="Points"
+                    component={Points}
                     options={{
                         tabBarIcon: ({ color }) => (
                             <MaterialIcons
