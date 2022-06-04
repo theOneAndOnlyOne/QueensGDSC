@@ -130,8 +130,11 @@ export default function Points({}) {
                             paddingLeft:10,
                             color: "black",
                             fontWeight: "500",
-                            fontSize: 12,}}>Your University is 10532 points{"\n"}
-                            away from your monthly goal!</Text>
+                            fontSize: 12,}}
+                            >Your University is 10532 points{"\n"}
+                            away from your monthly goal!
+                        </Text>
+                            
                     </View>
                 </TouchableOpacity>
             </View>
@@ -169,16 +172,19 @@ export default function Points({}) {
                                 horizontal = {true}
                             >
                                 <PointsCategory 
+                                    imageUri={require('../assets/goodwill-inside.jpg')}
+                                    name="Goodwill @ 10$"
+                                    points="600"
+                                />
+                                <PointsCategory 
                                     imageUri={require('../assets/frappuchino.jpg')}
-                                    name="🎉125 Vanilla Latte"
+                                    name="Vanilla Latte"
+                                    points="200"
                                 />
                                 <PointsCategory 
                                     imageUri={require('../assets/coffee.png')}
-                                    name="🎉125 Cappuccino"
-                                />
-                                <PointsCategory 
-                                    imageUri={require('../assets/coffee.png')}
-                                    name="🎉125 Dark Roast"
+                                    name="Cappuccino"
+                                    points="500"
                                 />
                             </ScrollView>
                         </View>
@@ -199,15 +205,18 @@ export default function Points({}) {
                             >
                                 <PointsCategory 
                                     imageUri={require('../assets/frappuchino.jpg')}
-                                    name="🎉125 Vanilla Latte"
+                                    name="Vanilla Latte"
+                                    points="110"
                                 />
                                 <PointsCategory 
                                     imageUri={require('../assets/coffee.png')}
-                                    name="🎉125 Cappuccino"
+                                    name="Cappuccino"
+                                    points="115"
                                 />
                                 <PointsCategory 
                                     imageUri={require('../assets/coffee.png')}
-                                    name="🎉125 Dark Roast"
+                                    name="Dark Roast"
+                                    points="210"
                                 />
                             </ScrollView>
                         </View>
@@ -217,7 +226,7 @@ export default function Points({}) {
                             fontWeight:'700',
                             paddingHorizontal: 20}}
                         >
-                            The Goodway Thrift Store
+                            The Goodway E-Tech
                         </Text>
                         <View style = {{
                             height:130, 
@@ -227,16 +236,24 @@ export default function Points({}) {
                                 horizontal = {true}
                             >
                                 <PointsCategory 
-                                    imageUri={require('../assets/frappuchino.jpg')}
-                                    name="🎉125 Vanilla Latte"
+                                    imageUri={require('../assets/bike.jpg')}
+                                    name="Lyme E-Bike"
+                                    points="5010"
                                 />
                                 <PointsCategory 
-                                    imageUri={require('../assets/coffee.png')}
-                                    name="🎉125 Cappuccino"
+                                    imageUri={require('../assets/larq.png')}
+                                    name="Larq Bottle"
+                                    points="1750"
                                 />
                                 <PointsCategory 
-                                    imageUri={require('../assets/coffee.png')}
-                                    name="🎉125 Dark Roast"
+                                    imageUri={require('../assets/crisps.png')}
+                                    name="Yappah Chips"
+                                    points="680"
+                                />
+                                <PointsCategory 
+                                    imageUri={require('../assets/lyric T6.png')}
+                                    name="Lyric Thermostat"
+                                    points="6080"
                                 />
                             </ScrollView>
                         </View>
@@ -283,11 +300,13 @@ const styles = StyleSheet.create({
       },
     searchContainer: {
         marginTop:80,
+        padding:10,
         paddingHorizontal:20,
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "row",
         width: "76%",
-    
+        shadowColor: 'black',
+        shadowOpacity: 0.2,
       },
 });

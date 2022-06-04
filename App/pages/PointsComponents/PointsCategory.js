@@ -14,6 +14,7 @@ class PointsCategory extends Component {
                 width:130,
                 marginLeft:20,
                 borderWidth:0.5,
+                borderRadius: 10,
                 borderColor:'#dddddd',
                 }}>
                 <View style={{flex:2}}>
@@ -23,6 +24,8 @@ class PointsCategory extends Component {
                             flex:1,
                             width:null,
                             height:null,
+                            borderTopRightRadius: 10,
+                            borderTopLeftRadius: 10,
                             resizeMode:'cover'
                         }}
                     />
@@ -32,7 +35,10 @@ class PointsCategory extends Component {
                     paddingLeft:10,
                     paddingTop:10,
                     }}>
-                    <Text>{this.props.name}</Text>
+                    <Text>
+                        {this.props.name}{'\n'}🎉
+                        <Text style ={{fontWeight:'500'}}>{this.props.points}</Text>
+                    </Text>
                 </View>
             </View>
         );
