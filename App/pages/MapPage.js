@@ -12,10 +12,8 @@ import {
 } from "react-native";
 import MapView, { PROVIDER_GOOGLE, Marker, Callout } from "react-native-maps";
 import { Feather, FontAwesome, Ionicons } from "react-native-vector-icons";
-import MapViewDirections from "react-native-maps-directions";
-import * as Location from "expo-location";
-import Animated from "react-native-reanimated";
 import { BottomSheet } from "react-native-elements";
+import moment from "moment";
 
 export default function MapPage({
     currentLoc,
@@ -27,8 +25,6 @@ export default function MapPage({
     setAddedNew,
 }) {
     const [showInfo, setShowInfo] = useState(false);
-    const [showImage, setShowImage] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [selectedLoc, setSelectedLoc] = useState(null);
 
     const InfoCard = () => {
@@ -54,35 +50,19 @@ export default function MapPage({
                                 style={{ opacity: 0.5 }}
                             ></FontAwesome>
                         </TouchableOpacity>
-                        <ScrollView style={{ height: 350 }}>
+                        <ScrollView
+                            style={{ height: 350 }}
+                            showsVerticalScrollIndicator={false}
+                        >
                             {!selectedLoc.image ? (
                                 <View style={styles.no_image}>
                                     <Text>no image</Text>
                                 </View>
                             ) : (
-                                <>
-                                    <Image
-                                        source={{ uri: selectedLoc.image }}
-                                        style={styles.loc_image}
-                                        // onLoadStart={() => setLoading(true)}
-                                        // onLoadEnd={() => setLoading(false)}
-                                    ></Image>
-                                    {/* {loading && (
-                                        <ActivityIndicator
-                                            size="large"
-                                            color="#4B9460"
-                                            marginTop={20}
-                                        />
-                                    )} */}
-                                </>
-
-                                // <>
-                                //     <TouchableOpacity
-                                //         onPress={() => setShowImage(true)}
-                                //     >
-
-                                //     </TouchableOpacity>
-                                // </>
+                                <Image
+                                    source={{ uri: selectedLoc.image }}
+                                    style={styles.loc_image}
+                                ></Image>
                             )}
                             <Text
                                 style={{
@@ -119,8 +99,114 @@ export default function MapPage({
                             <Text
                                 style={styles.text}
                             >{`Total tons of garbage recycled: ${selectedLoc.tonsRecycled}`}</Text>
+                            <View style={{ marginTop: 10 }}>
+                                {!selectedLoc.comments.length > 0 ? (
+                                    <>
+                                        <View
+                                            style={{
+                                                borderBottomColor: "black",
+                                                opacity: 0.1,
+                                                borderBottomWidth: 1,
+                                                marginHorizontal: 5,
+                                            }}
+                                        />
 
-                            <View></View>
+                                        <Text
+                                            style={{
+                                                opacity: 0.5,
+                                                textAlign: "center",
+                                                marginVertical: 8,
+                                            }}
+                                        >
+                                            No comments yet.
+                                        </Text>
+                                    </>
+                                ) : (
+                                    selectedLoc.comments.map((c) => (
+                                        <View>
+                                            <View
+                                                style={{
+                                                    borderBottomColor: "black",
+                                                    opacity: 0.1,
+                                                    borderBottomWidth: 1,
+                                                    marginHorizontal: 5,
+                                                }}
+                                            />
+                                            <View
+                                                style={{
+                                                    flexDirection: "row",
+                                                    marginVertical: 8,
+                                                }}
+                                            >
+                                                <Image
+                                                    style={{
+                                                        backgroundColor:
+                                                            "#ADADAD",
+                                                        width: 30,
+                                                        height: 30,
+                                                        borderRadius: 15,
+                                                    }}
+                                                ></Image>
+                                                <View
+                                                    style={{
+                                                        flexDirection: "column",
+                                                        width: 250,
+                                                        marginLeft: 10,
+                                                    }}
+                                                >
+                                                    <View
+                                                        style={{
+                                                            flexDirection:
+                                                                "row",
+                                                            justifyContent:
+                                                                "space-between",
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            style={{
+                                                                fontWeight:
+                                                                    "600",
+                                                                marginBottom: 5,
+                                                            }}
+                                                        >
+                                                            Anonymous User
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                fontSize: 12,
+                                                                opacity: 0.5,
+                                                            }}
+                                                        >
+                                                            {moment(
+                                                                c.date.seconds *
+                                                                    1000
+                                                            ).fromNow()}
+                                                        </Text>
+                                                    </View>
+                                                    <Text
+                                                        style={{
+                                                            opacity: 0.5,
+                                                        }}
+                                                    >{`" ${c.text} "`}</Text>
+                                                </View>
+                                            </View>
+                                        </View>
+                                    ))
+                                )}
+                            </View>
+
+                            <TouchableOpacity style={styles.comment}>
+                                <Text
+                                    style={{
+                                        color: "white",
+                                        fontWeight: "700",
+                                        fontSize: 16,
+                                        textAlign: "center",
+                                    }}
+                                >
+                                    Leave A Comment
+                                </Text>
+                            </TouchableOpacity>
                         </ScrollView>
                     </View>
                 </BottomSheet>
@@ -298,7 +384,7 @@ export default function MapPage({
 
 const styles = StyleSheet.create({
     page: { flex: 1 },
-    text: { opacity: 0.6, marginTop: 1 },
+    text: { opacity: 0.4, marginTop: 1, fontSize: 12 },
     container: {
         backgroundColor: "white",
         // position: "relative",
@@ -362,5 +448,14 @@ const styles = StyleSheet.create({
     },
     map: {
         ...StyleSheet.absoluteFillObject,
+    },
+    comment: {
+        backgroundColor: "#5DB075",
+        borderRadius: 30,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        alignItems: "center",
+        marginHorizontal: 0,
+        marginVertical: 10,
     },
 });

@@ -31,9 +31,9 @@ export default function UserFeed({
         );
 
         postsSnapshot.forEach(async (doc) => {
-            const { createdAt, description, image } = doc.data();
-            const user = await getDoc(doc.data().user);
-            const { name, info, pfp } = user.data();
+            const { createdAt, description, image, user } = doc.data();
+            const userRef = await getDoc(user);
+            const { name, info, pfp } = userRef.data();
             data.push({
                 createdAt,
                 description,

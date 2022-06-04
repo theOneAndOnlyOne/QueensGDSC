@@ -124,6 +124,7 @@ export default function AddLocation({
                     tags: selectedTags,
                     numOfDropOffs: 0,
                     tonsRecycled: 0,
+                    comments: [],
                 });
             })
             .then(() => {
