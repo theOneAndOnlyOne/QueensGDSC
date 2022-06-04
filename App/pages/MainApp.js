@@ -8,7 +8,7 @@ import Scan from "./Scan";
 import AllLocations from "./AllLocations";
 import Profile from "./Profile";
 import * as Location from "expo-location";
-import { collection, doc, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 const Tab = createBottomTabNavigator();
 
 export default function MainApp({ auth, currentUser, setCurrentUser, db }) {
@@ -22,13 +22,27 @@ export default function MainApp({ auth, currentUser, setCurrentUser, db }) {
 
     const getLocations = async () => {
         setLocations(null);
-        const data = [];
+        let data = [];
         const locationsSnapshot = await getDocs(collection(db, "locations"));
 
-        locationsSnapshot.forEach((doc) => {
-            const { name, coords, tags, numOfDropOffs, tonsRecycled, image } =
-                doc.data();
-
+        locationsSnapshot.forEach(async (doc) => {
+            const {
+                name,
+                coords,
+                tags,
+                numOfDropOffs,
+                tonsRecycled,
+                image,
+                comments,
+            } = doc.data();
+            //console.log(doc.data());
+            let allComments = [];
+            comments.forEach(async (doc) => {
+                const commentRef = await getDoc(doc);
+                const { text, date } = commentRef.data();
+                allComments.push({ text: text, date: date });
+            });
+            //allComments.sort((a, b) => b.date.seconds - a.date.seconds);
             data.push({
                 name,
                 latitude: coords.latitude,
@@ -37,9 +51,13 @@ export default function MainApp({ auth, currentUser, setCurrentUser, db }) {
                 numOfDropOffs,
                 tonsRecycled,
                 image,
+                comments: allComments,
             });
         });
-        setTimeout(() => setLocations(data), 2000);
+        setTimeout(() => {
+            setLocations(data);
+            //console.log(data);
+        }, 2000);
         //console.log(locations);
     };
     // useEffect(() => {
