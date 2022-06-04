@@ -13,8 +13,9 @@ import {
 import moment from "moment";
 import { TextInput } from "react-native-gesture-handler";
 import LeaderBoard from "./LeaderBoard";
+import PointsCategory from "./PointsComponents/PointsCategory";
 
-export default function Points() {
+export default function Points({}) {
     return (
         <SafeAreaView>
             <View style={{ backgroundColor: "#5DB075", height: 280 }}>
@@ -88,7 +89,7 @@ export default function Points() {
                     </Text>
                 </View>
                 {/* TO DO: make this following TouchableOpacity go to Leaderboard onPress */}
-                <TouchableOpacity onPress={() => {}} style={styles.tab}>
+                <TouchableOpacity style={styles.tab}>
                     {/* I apologize with this mostrosity of styling. TO DO: Fix this */}
                     <View style={{
                                 width:170,
@@ -144,8 +145,103 @@ export default function Points() {
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Search"
+                    placeholder="You deserve a break! Try Some Coffee"
                 />
+            </View>
+            <View>
+                <ScrollView scrollEventThrottle={16} style={{height:320}}>
+                    <View style = {{
+                        flex:1, 
+                        paddingTop:20
+                    }}>
+                        <Text style ={{
+                            fontSize:24,
+                            fontWeight:'700',
+                            paddingHorizontal: 20}}
+                        >
+                            Popular
+                        </Text>
+                        <View style = {{
+                            height:130, 
+                            marginTop: 20
+                        }}>
+                            <ScrollView
+                                horizontal = {true}
+                            >
+                                <PointsCategory 
+                                    imageUri={require('../assets/frappuchino.jpg')}
+                                    name="🎉125 Vanilla Latte"
+                                />
+                                <PointsCategory 
+                                    imageUri={require('../assets/coffee.png')}
+                                    name="🎉125 Cappuccino"
+                                />
+                                <PointsCategory 
+                                    imageUri={require('../assets/coffee.png')}
+                                    name="🎉125 Dark Roast"
+                                />
+                            </ScrollView>
+                        </View>
+                        <Text style ={{
+                            paddingTop:20,
+                            fontSize:24,
+                            fontWeight:'700',
+                            paddingHorizontal: 20}}
+                        >
+                            Starbucks, Kingston
+                        </Text>
+                        <View style = {{
+                            height:130, 
+                            marginTop: 20
+                        }}>
+                            <ScrollView
+                                horizontal = {true}
+                            >
+                                <PointsCategory 
+                                    imageUri={require('../assets/frappuchino.jpg')}
+                                    name="🎉125 Vanilla Latte"
+                                />
+                                <PointsCategory 
+                                    imageUri={require('../assets/coffee.png')}
+                                    name="🎉125 Cappuccino"
+                                />
+                                <PointsCategory 
+                                    imageUri={require('../assets/coffee.png')}
+                                    name="🎉125 Dark Roast"
+                                />
+                            </ScrollView>
+                        </View>
+                        <Text style ={{
+                            paddingTop:20,
+                            fontSize:24,
+                            fontWeight:'700',
+                            paddingHorizontal: 20}}
+                        >
+                            The Goodway Thrift Store
+                        </Text>
+                        <View style = {{
+                            height:130, 
+                            marginTop: 20
+                        }}>
+                            <ScrollView
+                                horizontal = {true}
+                            >
+                                <PointsCategory 
+                                    imageUri={require('../assets/frappuchino.jpg')}
+                                    name="🎉125 Vanilla Latte"
+                                />
+                                <PointsCategory 
+                                    imageUri={require('../assets/coffee.png')}
+                                    name="🎉125 Cappuccino"
+                                />
+                                <PointsCategory 
+                                    imageUri={require('../assets/coffee.png')}
+                                    name="🎉125 Dark Roast"
+                                />
+                            </ScrollView>
+                        </View>
+                    </View>
+                </ScrollView>
             </View>
         </SafeAreaView>
     );
@@ -181,17 +277,17 @@ const styles = StyleSheet.create({
         height: 65,
     },
     input: {
-        fontSize: 20,
+        fontSize: 12,
         marginLeft: 10,
         width: "90%",
       },
     searchContainer: {
         marginTop:80,
-        marginLeft:55,
+        paddingHorizontal:20,
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "row",
-        width: "90%",
+        width: "76%",
     
       },
 });
