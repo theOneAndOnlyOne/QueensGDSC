@@ -48,6 +48,7 @@ export default function Profile({
         //console.log(ownPosts);
         ownPosts.forEach(async (doc) => {
             const post = await getDoc(doc);
+            console.log(post.data());
             const { createdAt, description, image } = post.data();
             data.push({
                 createdAt,

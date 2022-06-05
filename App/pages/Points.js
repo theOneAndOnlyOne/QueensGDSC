@@ -12,11 +12,15 @@ import {
 } from "react-native";
 import moment from "moment";
 import { TextInput } from "react-native-gesture-handler";
+import { MaterialIcons } from "react-native-vector-icons";
 import LeaderBoard from "./LeaderBoard";
 import PointsCategory from "./PointsComponents/PointsCategory";
 
-export default function Points({}) {
-    return (
+export default function Points({ currentUser }) {
+    const [isLB, setIsLB] = useState(false);
+    return isLB ? (
+        <LeaderBoard setIsLB={setIsLB}></LeaderBoard>
+    ) : (
         <SafeAreaView>
             <View style={{ backgroundColor: "#5DB075", height: 280 }}>
                 <View
@@ -24,117 +28,119 @@ export default function Points({}) {
                         marginLeft: 25,
                         marginRight: 25,
                         flexDirection: "row",
-                        justifyContent: "space-between",
+                        justifyContent: "center",
                         alignItems: "center",
                         marginTop: 20,
                     }}
                 >
-                    <TouchableOpacity onPress={() => {}}>
+                    <View
+                        style={{
+                            backgroundColor: "#4F8F62",
+                            borderColor: "#5DB075",
+                            borderRadius: 55,
+                            borderWidth: 1,
+                            width: 150,
+                            height: 50,
+                            justifyContent: "flex-end",
+                            alignItems: "center",
+                            overflow: "visible",
+                            flexDirection: "row",
+                        }}
+                    >
                         <Text
                             style={{
                                 color: "white",
                                 fontWeight: "500",
                                 fontSize: 16,
+                                lineHeight: 30,
+                                paddingRight: 15,
                             }}
                         >
-                            &lt; Back
+                            🎉3201
                         </Text>
-                    </TouchableOpacity>
-                    
-                    <TouchableOpacity underlayColor = '#5DB075'>
-                        {/* TO DO: Add Profile picture to View, note to adjust paddingRight */}
-                        <View style={{
-                                backgroundColor:'#4F8F62',
-                                borderColor:'#5DB075',
-                                borderRadius: 55,
-                                borderWidth: 1,
-                                paddingTop: 15,
-                                paddingBottom:15,
-                                paddingLeft: 10,
-                                paddingRight: 60,
-                                color: "white",
-                                fontWeight: "500",
-                                fontSize: 16,
-                                overflow: 'hidden',
-                            }}>
-                            <Text style = {{color: "white",
-                                fontWeight: "500",
-                                fontSize: 16,
-                                lineHeight: 30,}}>
-                            🎉1250
-                            </Text>
-                            
-                            
-                        </View>
-                        
+                        <Image
+                            source={{ uri: currentUser.pfp }}
+                            style={{
+                                width: 48,
+                                height: 48,
+                                borderRadius: 30,
+                                borderWidth: 2,
+                                borderColor: "white",
+                                backgroundColor: "#ADADAD",
+                            }}
+                        />
+                    </View>
+                    <TouchableOpacity
+                        onPress={() => setIsLB(true)}
+                        style={{ position: "absolute", right: 5 }}
+                    >
+                        <MaterialIcons
+                            name="leaderboard"
+                            size={28}
+                            color="#f6f6f6"
+                        />
                     </TouchableOpacity>
                 </View>
-                <View>
-                    {/* Find a better way to center this instead of padding */}
-                    <Text style = {{ paddingLeft:15,
-                                paddingTop:25,
-                                color: "white",
-                                fontWeight: "500",
-                                fontSize: 37,
-                                lineHeight: 30,}}>
-                    You're up this week
-                    </Text>
-                    <Text style = {{ paddingLeft:17,
-                                paddingTop:25,
-                                color: "white",
-                                fontWeight: "500",
-                                fontSize: 37,
-                                lineHeight: 30,}}>
-                    by <Text style = {{fontWeight: "200",}}>20 Points</Text>
-                    </Text>
-                </View>
+                <Text
+                    style={{
+                        color: "white",
+                        fontWeight: "500",
+                        fontSize: 37,
+                        alignSelf: "center",
+                        textAlign: "center",
+                        padding: 20,
+                    }}
+                >
+                    You're up this week by
+                    <Text style={{ fontWeight: "200" }}>{` 20 Points`}</Text>
+                </Text>
                 {/* TO DO: make this following TouchableOpacity go to Leaderboard onPress */}
                 <TouchableOpacity style={styles.tab}>
                     {/* I apologize with this mostrosity of styling. TO DO: Fix this */}
-                    <View style={{
-                                width:170,
-                                flexDirection: "row",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                backgroundColor:'#4F8F62',
-                                borderColor:'#5DB075',
-                                borderRadius: 55,
-                                marginTop: 10,
-                                marginLeft: 10,
-                                paddingTop: 5,
-                                paddingBottom:5,
-                                paddingLeft: 5,
-                                paddingRight: 5,
-                                color: "white",
-                                fontWeight: "500",
-                                fontSize: 16,
-                                overflow: 'hidden',
-                            }}>
-                        <Text style = {{ paddingLeft:10,
+                    <View
+                        style={{
+                            width: 200,
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            backgroundColor: "#4F8F62",
+                            borderColor: "#5DB075",
+                            borderRadius: 55,
+                            padding: 10,
+                        }}
+                    >
+                        <Text
+                            style={{
                                 color: "white",
                                 fontWeight: "500",
                                 fontSize: 14,
-                                lineHeight: 30,}}>
-                            COMMUNITY EVENT
+                            }}
+                        >
+                            GLOBAL EVENT
                         </Text>
                     </View>
-                    <View style={{
-                        marginRight: 25,
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}>
-                        <Image source={require('../assets/gael.png')} style ={styles.gael_img}/>
-                        <Text style = {{ 
-                            paddingTop:1,
-                            paddingLeft:10,
-                            color: "black",
-                            fontWeight: "500",
-                            fontSize: 12,}}
-                            >Your University is 10532 points{"\n"}
-                            away from your monthly goal!
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }}
+                    >
+                        <Image
+                            source={require("../assets/gael.png")}
+                            style={styles.gael_img}
+                        />
+                        <Text
+                            style={{
+                                flex: 1,
+                                paddingLeft: 10,
+                                color: "black",
+                                fontWeight: "500",
+                                fontSize: 12,
+                            }}
+                        >
+                            Your University is 10532 Points ahead of Stanford!
                         </Text>
-                            
                     </View>
                 </TouchableOpacity>
             </View>
@@ -144,122 +150,118 @@ export default function Points({}) {
                     name="search"
                     size={20}
                     color="black"
-                    style ={{marginLeft:1}}
+                    style={{ marginLeft: 1 }}
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="You deserve a break! Try Some Coffee"
+                    placeholder="Search for items to redeem"
                 />
             </View>
-            <View>
-                <ScrollView scrollEventThrottle={16} style={{height:320}}>
-                    <View style = {{
-                        flex:1, 
-                        paddingTop:20
-                    }}>
-                        <Text style ={{
-                            fontSize:24,
-                            fontWeight:'700',
-                            paddingHorizontal: 20}}
-                        >
-                            Popular
-                        </Text>
-                        <View style = {{
-                            height:130, 
-                            marginTop: 20
-                        }}>
-                            <ScrollView
-                                horizontal = {true}
-                            >
-                                <PointsCategory 
-                                    imageUri={require('../assets/goodwill-inside.jpg')}
-                                    name="Goodwill @ 10$"
-                                    points="600"
-                                />
-                                <PointsCategory 
-                                    imageUri={require('../assets/frappuchino.jpg')}
-                                    name="Vanilla Latte"
-                                    points="200"
-                                />
-                                <PointsCategory 
-                                    imageUri={require('../assets/coffee.png')}
-                                    name="Cappuccino"
-                                    points="500"
-                                />
-                            </ScrollView>
-                        </View>
-                        <Text style ={{
-                            paddingTop:20,
-                            fontSize:24,
-                            fontWeight:'700',
-                            paddingHorizontal: 20}}
-                        >
-                            Starbucks, Kingston
-                        </Text>
-                        <View style = {{
-                            height:130, 
-                            marginTop: 20
-                        }}>
-                            <ScrollView
-                                horizontal = {true}
-                            >
-                                <PointsCategory 
-                                    imageUri={require('../assets/frappuchino.jpg')}
-                                    name="Vanilla Latte"
-                                    points="110"
-                                />
-                                <PointsCategory 
-                                    imageUri={require('../assets/coffee.png')}
-                                    name="Cappuccino"
-                                    points="115"
-                                />
-                                <PointsCategory 
-                                    imageUri={require('../assets/coffee.png')}
-                                    name="Dark Roast"
-                                    points="210"
-                                />
-                            </ScrollView>
-                        </View>
-                        <Text style ={{
-                            paddingTop:20,
-                            fontSize:24,
-                            fontWeight:'700',
-                            paddingHorizontal: 20}}
-                        >
-                            The Goodway E-Tech
-                        </Text>
-                        <View style = {{
-                            height:130, 
-                            marginTop: 20
-                        }}>
-                            <ScrollView
-                                horizontal = {true}
-                            >
-                                <PointsCategory 
-                                    imageUri={require('../assets/bike.jpg')}
-                                    name="Lyme E-Bike"
-                                    points="5010"
-                                />
-                                <PointsCategory 
-                                    imageUri={require('../assets/larq.png')}
-                                    name="Larq Bottle"
-                                    points="1750"
-                                />
-                                <PointsCategory 
-                                    imageUri={require('../assets/crisps.png')}
-                                    name="Yappah Chips"
-                                    points="680"
-                                />
-                                <PointsCategory 
-                                    imageUri={require('../assets/lyric T6.png')}
-                                    name="Lyric Thermostat"
-                                    points="6080"
-                                />
-                            </ScrollView>
-                        </View>
-                    </View>
-                </ScrollView>
-            </View>
+            <ScrollView style={{ height: 300 }}>
+                <Text
+                    style={{
+                        fontSize: 16,
+                        fontWeight: "700",
+                        paddingHorizontal: 20,
+                    }}
+                >
+                    Popular Choices
+                </Text>
+                <View
+                    style={{
+                        marginTop: 10,
+                    }}
+                >
+                    <ScrollView horizontal={true}>
+                        <PointsCategory
+                            imageUri={require("../assets/goodwill-inside.jpg")}
+                            name="Goodwill @ 10$"
+                            points="600"
+                        />
+                        <PointsCategory
+                            imageUri={require("../assets/bag.jpg")}
+                            name="Reusable bag"
+                            points="200"
+                        />
+                        <PointsCategory
+                            imageUri={require("../assets/bike.jpg")}
+                            name="Lyme E-Bike"
+                            points="5010"
+                        />
+                    </ScrollView>
+                </View>
+                <Text
+                    style={{
+                        paddingTop: 20,
+                        fontSize: 16,
+                        fontWeight: "700",
+                        paddingHorizontal: 20,
+                    }}
+                >
+                    Starbucks, Kingston
+                </Text>
+                <View
+                    style={{
+                        marginTop: 10,
+                    }}
+                >
+                    <ScrollView horizontal={true}>
+                        <PointsCategory
+                            imageUri={require("../assets/frappuchino.jpg")}
+                            name="Vanilla Latte"
+                            points="110"
+                        />
+                        <PointsCategory
+                            imageUri={require("../assets/coffee.png")}
+                            name="Cappuccino"
+                            points="115"
+                        />
+                        <PointsCategory
+                            imageUri={require("../assets/coffee.png")}
+                            name="Dark Roast"
+                            points="210"
+                        />
+                    </ScrollView>
+                </View>
+                <Text
+                    style={{
+                        paddingTop: 20,
+                        fontSize: 16,
+                        fontWeight: "700",
+                        paddingHorizontal: 20,
+                    }}
+                >
+                    The Goodway E-Tech
+                </Text>
+                <View
+                    style={{
+                        marginTop: 10,
+                    }}
+                >
+                    <ScrollView horizontal={true}>
+                        <PointsCategory
+                            imageUri={require("../assets/bike.jpg")}
+                            name="Lyme E-Bike"
+                            points="5010"
+                        />
+                        <PointsCategory
+                            imageUri={require("../assets/larq.png")}
+                            name="Larq Bottle"
+                            points="1750"
+                        />
+                        <PointsCategory
+                            imageUri={require("../assets/crisps.png")}
+                            name="Yappah Chips"
+                            points="680"
+                        />
+                        <PointsCategory
+                            imageUri={require("../assets/lyric T6.png")}
+                            name="Lyric Thermostat"
+                            points="6080"
+                        />
+                    </ScrollView>
+                </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
@@ -269,12 +271,13 @@ const styles = StyleSheet.create({
         height: 140,
         backgroundColor: "#f6f6f6",
         borderRadius: 18,
-        marginTop:10,
-        marginLeft: 55,
-        shadowColor: '#000000',
-        shadowOffset: {width: -2, height: 4},
+        shadowColor: "#000000",
+        shadowOffset: { width: -2, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 3,
+        justifyContent: "center",
+        alignItems: "center",
+        alignSelf: "center",
     },
     tab_bg: {
         flexDirection: "row",
@@ -286,10 +289,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginVertical: 10,
     },
-    gael_img:
-    {
+    gael_img: {
         marginTop: 10,
-        marginLeft: 10,
+        marginLeft: 15,
         width: 53,
         height: 65,
     },
@@ -297,16 +299,18 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginLeft: 10,
         width: "90%",
-      },
+    },
     searchContainer: {
-        marginTop:80,
-        padding:10,
-        paddingHorizontal:20,
+        marginTop: 70,
+        marginBottom: 15,
+        padding: 15,
+        paddingHorizontal: 20,
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "row",
-        width: "76%",
-        shadowColor: 'black',
-        shadowOpacity: 0.2,
-      },
+        width: "85%",
+        backgroundColor: "#E8E8E8",
+        alignSelf: "center",
+        borderRadius: 25,
+    },
 });

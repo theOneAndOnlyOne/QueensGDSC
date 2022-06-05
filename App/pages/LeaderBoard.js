@@ -7,8 +7,9 @@ import {
     StyleSheet,
     TouchableOpacity,
 } from "react-native";
+import { Feather } from "react-native-vector-icons";
 
-export default function LeaderBoard() {
+export default function LeaderBoard({ setIsLB }) {
     const [showLocal, setShowLocal] = useState(true);
     const ranking = [
         { user: "🥇Arielle🥇", score: 4867 },
@@ -31,6 +32,16 @@ export default function LeaderBoard() {
     return (
         <SafeAreaView>
             <View style={{ alignItems: "center" }}>
+                <TouchableOpacity
+                    style={{ position: "absolute", left: 20, top: 15 }}
+                    onPress={() => setIsLB(false)}
+                >
+                    <Feather
+                        name="chevrons-left"
+                        size={30}
+                        color="#5DB075"
+                    ></Feather>
+                </TouchableOpacity>
                 <Text
                     style={{
                         fontSize: 30,

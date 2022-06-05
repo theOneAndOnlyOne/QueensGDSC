@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { StatusBar, View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons, MaterialIcons } from "react-native-vector-icons";
+import {
+    Ionicons,
+    MaterialIcons,
+    FontAwesome5,
+} from "react-native-vector-icons";
 import UserFeed from "./UserFeed";
 import LeaderBoard from "./LeaderBoard";
 import Points from "./Points";
@@ -201,17 +205,20 @@ export default function MainApp({ auth, currentUser, setCurrentUser, db }) {
                 </Tab.Screen>
                 <Tab.Screen
                     name="Points"
-                    component={Points}
                     options={{
                         tabBarIcon: ({ color }) => (
-                            <MaterialIcons
-                                name="leaderboard"
+                            <FontAwesome5
+                                name="medal"
                                 color={color}
                                 size={26}
                             />
                         ),
                     }}
-                />
+                >
+                    {(props) => (
+                        <Points {...props} currentUser={currentUser}></Points>
+                    )}
+                </Tab.Screen>
                 <Tab.Screen
                     name="Profile"
                     options={{
