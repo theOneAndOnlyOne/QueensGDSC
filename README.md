@@ -14,6 +14,8 @@ NOTE: Currently, the app is incompatible with the latest verison of Node, use nv
 - Replace the `API_KEY` in Scan.js with your own Google Cloud (with full account) API key
 - Install expo: `npm install --global expo-cli`, and run `expo start`
 
+- Once the app is running, you can sign up by filling out the signup form, or use an existing account (email: olivia@test.com, password: 123456)
+
 (As of now the camera and gallery access are only configured on ios so an ios emulator is needed to display all features of this app, and the ideal emulator is iPhone 13)
 
 ## About Our Project
