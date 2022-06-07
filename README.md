@@ -2,8 +2,7 @@
 
 ## Demo
 
-https://user-images.githubusercontent.com/85253089/160966046-f414f4bb-5102-4041-bc17-8a5e1e37e23d.mp4
-
+https://user-images.githubusercontent.com/85253089/172275907-19ad466a-560d-4019-b3cc-70e371d35e54.mp4
 
 ## How to Run
 NOTE: Currently, the app is incompatible with the latest verison of Node, use nvm to downgrade to version 16.13.0 and run these commands
