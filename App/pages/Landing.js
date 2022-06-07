@@ -179,10 +179,7 @@ export default function Landing({ navigation, auth, setCurrentUser, db }) {
                     Sign up
                 </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-                style={styles.btn}
-                onPress={() => navigation.navigate("MainApp")}
-            >
+            <TouchableOpacity style={styles.btn}>
                 <FontAwesome
                     name="google"
                     color="#5DB075"
@@ -254,10 +251,7 @@ export default function Landing({ navigation, auth, setCurrentUser, db }) {
                     Log in
                 </Text>
             </TouchableOpacity>
-            <TouchableOpacity
-                style={styles.btn}
-                onPress={() => navigation.navigate("MainApp")}
-            >
+            <TouchableOpacity style={styles.btn}>
                 <FontAwesome
                     name="google"
                     color="#5DB075"
