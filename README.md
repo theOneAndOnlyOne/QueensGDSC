@@ -2,7 +2,7 @@
 
 ## Demo
 
-https://user-images.githubusercontent.com/85253089/160966046-f414f4bb-5102-4041-bc17-8a5e1e37e23d.mp4
+https://user-images.githubusercontent.com/85253089/172278094-ea9bdc99-d174-4a82-b5e0-30795c150e92.mp4
 
 
 ## How to Run
@@ -13,6 +13,8 @@ NOTE: Currently, the app is incompatible with the latest verison of Node, use nv
 - Replace all image paths with either their corresponding local paths on your device, or their uri from an online source (however the code will still compile without this step, just that the image will not show up)
 - Replace the `API_KEY` in Scan.js with your own Google Cloud (with full account) API key
 - Install expo: `npm install --global expo-cli`, and run `expo start`
+
+- Once the app is running, you can sign up by filling out the signup form, or use an existing account (email: olivia@test.com, password: 123456)
 
 (As of now the camera and gallery access are only configured on ios so an ios emulator is needed to display all features of this app, and the ideal emulator is iPhone 13)
 
