@@ -34,7 +34,7 @@ export default function Scan({
     const [status, setStatus] = useState(null);
     const [types, setTypes] = useState(null);
     const [uploading, setUploading] = useState(false);
-    const API_KEY = "AIzaSyD61WL16VDcLiNB1MMOVLNkabfph0ohXS8";
+    const API_KEY = "";
     const API_URL = `https://vision.googleapis.com/v1/images:annotate?key=${API_KEY}`;
     const storage = getStorage();
 
