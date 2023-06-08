@@ -8,7 +8,7 @@ https://user-images.githubusercontent.com/85253089/172278094-ea9bdc99-d174-4a82-
 ## How to Run
 NOTE: Currently, the app is incompatible with the latest verison of Node, use nvm to downgrade to version 16.13.0 and run these commands
 - clone repo
-- cd to `/QueensGDSC/App/`
+- cd to `/QueensGDSC/App/` 
 - Run `npm install`
 - Replace all image paths with either their corresponding local paths on your device, or their uri from an online source (however the code will still compile without this step, just that the image will not show up)
 - Replace the `API_KEY` in Scan.js with your own Google Cloud (with full account) API key
